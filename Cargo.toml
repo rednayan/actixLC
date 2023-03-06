@@ -1,5 +1,5 @@
 [package]
-name = "actixLS"
+name = "actix_ls"
 version = "0.1.0"
 edition = "2021"
 
