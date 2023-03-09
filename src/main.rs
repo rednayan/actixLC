@@ -1,5 +1,11 @@
-use actix_web::{get,post,web::{self, Data, ServiceConfig},App,HttpResponse,HttpServer,Responder, guard};
-use std::sync::Mutex;
+use actix_web::{get,post,web::{self, Data, ServiceConfig},App,HttpResponse,HttpServer,Responder, guard, Error};
+use std::{sync::Mutex, fmt::format};
+use serde::Deserialize;
+#[derive(Deserialize)]
+struct Info {
+    user_id: u32,
+    friend : String,
+}
 
 struct AppState {
     app_name:String,
@@ -47,6 +53,13 @@ fn config(cfg: &mut web::ServiceConfig) {
     );
 }
 
+
+
+#[get("users/{user_id}/{friend}")]
+async fn index3(info: web::Path<Info>) -> Result<String> {
+    return Ok(format!("Welcome {} , user_id : {}", info.friend,info.user_id));
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     
@@ -63,15 +76,19 @@ async fn main() -> std::io::Result<()> {
     // .run()
     // .await
 
-   HttpServer::new(|| {
-    App::new()
-        .configure(config)
-        .service(web::scope("/api").configure(scoped_config))
-        .route(
-            "/",
-            web::get().to(|| async {HttpResponse::Ok().body("/")}),         
-        )
-   })
+//    HttpServer::new(|| {
+//     App::new()
+//         .configure(config)
+//         .service(web::scope("/api").configure(scoped_config))
+//         .route(
+//             "/",
+//             web::get().to(|| async {HttpResponse::Ok().body("/")}),         
+//         )
+//    })
+
+    HttpServer::new(|| {
+        App::new().service(index3)
+    })
    .bind(("127.0.0.1",8080))?
    .run()
    .await
